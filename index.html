@@ -1,0 +1,85 @@
+<h2>Site Data Analysis</h2>
+<br>
+<ol>
+    <li>enter site</li>
+    <li>submit</li>
+    <li>get_data</li>
+    <li>plot</li>
+</ol>
+
+<form id="myForm">
+<label for="">site_name</label>
+<input type="text" id="input_text">
+<input type="submit" id="submit">
+
+</form>
+
+<!-- prevent refresh/redirecting away from home page-->
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+    document.getElementById("myForm").addEventListener("submit", function (e) {
+    e.preventDefault()})})
+</script>
+
+<!-- hide data div -->
+<style>
+    #dat{visibility: hidden; height: 5px; display: block; overflow: scroll;}
+</style>
+
+<!-- buttons -->
+<button onclick="slay()">get_data</button>
+<button onclick="drawChart()">plot</button>
+
+<!-- divs -->
+<div id="chart_div"></div>
+<div id="dat"></div>
+
+
+<!-- fetch data from fastAPI route, and place on div -->
+<script>
+    function slay(){
+    var catName = document.getElementById('input_text').value;
+    fetch('http://127.0.0.1:8000/data/' + catName, {
+    method: 'GET',})
+    .then(resp => resp.text()) // or, resp.json(), etc.
+    .then(data => {document.getElementById("dat").innerHTML = data;})
+    }
+</script>
+
+
+
+<!-- using google chart lib -->
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+
+//google charts lib
+google.charts.load('current', {'packages':['corechart']});
+google.charts.setOnLoadCallback(drawChart);
+
+function drawChart(){  
+
+var div_data=document.getElementById("dat").textContent    
+var incoming_data=JSON.parse(div_data);
+//var glo_var=[];
+//glo_var.push(['Time', 'PowerA', 'PowerB']);  
+//var new_data = google.visualization.arrayToDataTable(incoming_data, false);
+
+
+var new_data = new google.visualization.DataTable();
+
+// Label columns
+new_data.addColumn('string', 'time');
+new_data.addColumn('number', 'powerA');
+new_data.addColumn('number', 'powerB');
+
+// Add data.
+new_data.addRows(incoming_data);
+
+              
+var options = {'title':'site_data', 'height':'400', 'width':'300'};
+var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+chart.draw(new_data, options);
+    
+} 
+
+</script>
