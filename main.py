@@ -32,11 +32,6 @@ async def main(request: Request):
 
 
 
-@app.get("/login/")
-async def login(username: str):
-    return {"username": username}
-
-
 
 
 if __name__ == "__main__":
